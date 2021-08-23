@@ -1,0 +1,9 @@
+{
+    "name": "solved",
+    "version": "1.0.0",
+    "dependencies": {
+        "inquirer": "^8.1.2",
+        "mysql2": "^2.2.5",
+        "console.table": "^0.10.0"
+    }
+}
