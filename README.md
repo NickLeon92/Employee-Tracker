@@ -23,6 +23,7 @@ Run "npm i" and enter your password in line 23
 source the schmema and seeds files to start from the template
 
 https://user-images.githubusercontent.com/83552236/131049690-258621d1-76fb-47b1-979a-752d44c264fe.mp4
+
 https://user-images.githubusercontent.com/83552236/131049989-5b9563a6-bdd5-4c26-92c8-d49679a75577.mp4
 
 ## Contributing
