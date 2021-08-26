@@ -3,6 +3,7 @@ const inquirer = require('inquirer');
 const table = require('console.table')
 // Import and require mysql2
 const mysql = require('mysql2');
+const { clearLine } = require('inquirer/lib/utils/readline');
 let index;
 
 const PORT = process.env.PORT || 3001;
@@ -45,6 +46,7 @@ const Menu = () => {
     }]
   
     ).then((answers) => {
+      // console.log('testttt')
     
         if (answers.menuChoice === 'View All Departments') {
             deptViewer();
@@ -74,6 +76,11 @@ const Menu = () => {
             emplAdd()
                 
         }
+        if (answers.menuChoice === 'Update An Employee Role') {
+          emplUpdate()
+              
+        }
+        
     }).catch((err) => console.error(err))
   }
 
@@ -153,8 +160,8 @@ const Menu = () => {
             });
             function pls () {
             db.query(`INSERT INTO role(title, salary, department_id) VALUES(?,?,?)`, [answers.title, parseInt(answers.salary) , index] , (err, results) => {
-                console.log(index)
-                console.log(parseInt(index))
+                // console.log(index)
+                // console.log(parseInt(index))
                 Menu();
               });}
           }).catch((err) => console.error(err))
@@ -164,21 +171,24 @@ const Menu = () => {
     
     const arraytest1 =[];
     const arraytest2 =[];
+    const managers =[];
 
     db.query('SELECT title FROM role', function (err, results, field) {
         // console.log(results)
         results.forEach(element => {
           arraytest1.push(element.title)
         });
-        // console.log(arraytest1)
+        console.log(arraytest1)
     })
-    db.query(`SELECT id FROM employee WHERE manager_id IS NULL`, function (err, results, field) {
+    db.query(`SELECT id, first_name, last_name FROM employee WHERE manager_id IS NULL`, function (err, results, field) {
       // console.log(results)
       results.forEach(element => {
-        arraytest2.push(element.id)
+        arraytest2.push(element.first_name + ' ' + element.last_name)
+        managers.push([element.id, element.first_name + ' ' + element.last_name])
       });
       arraytest2.push('None')
       // console.log(arraytest2)
+      // console.log(managers)
     })  
   
       
@@ -206,14 +216,21 @@ const Menu = () => {
                 name: 'manChoice',
                 choices: arraytest2,
             }
-          ]).then(async (answers) => {
+          ]).then((answers) => {
 
+            // console.log('HERE??')
             let index1;
-            let index2 = answers.manChoice;
+            let index2 = getIndex(managers,answers.manChoice);
+
 
             if (answers.manChoice === 'None'){
               index2 = null;
             }
+
+            // else{
+            //   index2 = getIndex(managers,answers.manChoice);
+            //   console.log('TOAST1: ', index2)
+            // }
             
             db.query(`SELECT id from role where title = '${answers.roleChoice}'`, function (err, results){
   
@@ -233,14 +250,85 @@ const Menu = () => {
             
             }
 
-          
-
-          
-        
-            
-              
           ).catch((err) => console.error(err))
               
   }
+
   
-  Menu();
+  const emplUpdate = () => { 
+    
+    const employees =[];
+    const employeesref =[];
+    const roles =[];
+    const rolesref = [];
+
+  
+    
+    db.query('SELECT id, first_name, last_name FROM employee', function (err, results, field) {
+      // console.log(results)
+      results.forEach(element => {
+        employees.push(element.first_name + ' ' + element.last_name)
+        employeesref.push([element.id, element.first_name + ' ' + element.last_name])
+      });
+      callnext()
+    })
+
+    function callnext() {
+    db.query(`SELECT id, title FROM role`, function (err, results, field) {
+      // console.log(results)
+      results.forEach(element => {
+        roles.push(element.title)
+        rolesref.push([element.id, element.title])
+      });
+      callmenu()
+    })  
+  }
+
+    function callmenu (){
+    
+    return inquirer.prompt(
+      [
+        {
+          type: 'list',
+          message: 'Please Select Employee to Update Role:',
+          name: 'emplChoice',
+          choices: employees,
+        },
+        {
+          type: 'list',
+          message: 'Please Select New Role:',
+          name: 'roleChoice',
+          choices: roles,
+        }
+      ]).then((answers) => {
+        
+        let emplIndex = getIndex(employeesref, answers.emplChoice);
+        let roleIndex = getIndex(rolesref, answers.roleChoice);
+        // console.log('EMPLOYEE/ROLE ID: ', emplIndex, roleIndex)
+        Update()
+        
+        function Update() {
+          
+          db.query(`UPDATE employee SET role_id = ? WHERE id = ?`, [roleIndex, emplIndex], (err, results) => {
+            
+            Menu();
+          });}
+          
+          
+        }
+        
+        ).catch((err) => console.error(err))}
+  }
+      
+      const getIndex = (matrix, arg) => {
+        console.log('GET INDEX IS ACTIVATED')
+        let thisElement;
+        matrix.forEach(element=>
+          {
+            if(element[1] === arg){
+              thisElement =  element[0]
+            }
+          })
+        return thisElement
+      }
+      Menu();
