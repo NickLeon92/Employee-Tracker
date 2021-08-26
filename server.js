@@ -94,7 +94,7 @@ const Menu = () => {
   }
 
   const roleViewer = () => {
-    db.query('SELECT * FROM role', function (err, results) {
+    db.query('SELECT * FROM role JOIN department ON role.department_id = department.id ORDER BY department_id', function (err, results) {
         console.log('\n')
         console.table(results);
         console.log('---------------------------------------')
@@ -103,7 +103,7 @@ const Menu = () => {
   }
   
   const emplViewer = () => {
-    db.query('SELECT * FROM employee', function (err, results) {
+    db.query('SELECT * FROM employee JOIN role ON employee.role_id = role.id', function (err, results) {
         console.log('\n')
         console.table(results);
         console.log('---------------------------------------')
@@ -178,7 +178,7 @@ const Menu = () => {
         results.forEach(element => {
           arraytest1.push(element.title)
         });
-        console.log(arraytest1)
+        // console.log(arraytest1)
     })
     db.query(`SELECT id, first_name, last_name FROM employee WHERE manager_id IS NULL`, function (err, results, field) {
       // console.log(results)
@@ -321,7 +321,7 @@ const Menu = () => {
   }
       
       const getIndex = (matrix, arg) => {
-        console.log('GET INDEX IS ACTIVATED')
+        // console.log('GET INDEX IS ACTIVATED')
         let thisElement;
         matrix.forEach(element=>
           {
